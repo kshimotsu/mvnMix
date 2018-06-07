@@ -1,0 +1,17 @@
+Package: mvnMix
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Who wrote it
+Maintainer: The package maintainer <yourself@somewhere.net>
+Depends:
+    R (>= 2.14.0),
+    mixtools
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: Rcpp (>= 0.11.1), RcppArmadillo (>= 0.4.200.0)
+LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 6.0.1

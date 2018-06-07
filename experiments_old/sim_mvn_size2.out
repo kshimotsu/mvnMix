@@ -1,0 +1,6 @@
+[1] "DGP, nobs, nrep"
+[1]   1 200 100
+    user   system  elapsed 
+   1.911    8.965 2438.026 
+[1] "rejfreq5, rejfreq1"
+[1] 2 2 2 0 0 0
