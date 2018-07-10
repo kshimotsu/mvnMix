@@ -106,7 +106,7 @@ List cppMVNmixPMLE(NumericMatrix bs,
         r.col(j) = sum(rtilde,1);
         detsigma(j) = det(sigmamat.cols(j*d,(j+1)*d-1));
         s0j = sigma0mat.cols(j*d,(j+1)*d-1) * sigma_j_inv;
-        pen(j) = trace(s0j) - 2*log(det(s0j)) -d;
+        pen(j) = trace(s0j) - log(det(s0j)) -d;
       }
       alp_sig = alpha / sqrt(detsigma);
       minr = min(r,1);
