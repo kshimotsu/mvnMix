@@ -1,4 +1,5 @@
 #' @useDynLib mvnMix
+#' @importFrom Rcpp sourceCpp
 #' @description Generate initial values used by the PMLE of multivariate normal mixture
 #' @export
 #' @title mvnmixPMLEinit
