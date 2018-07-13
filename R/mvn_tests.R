@@ -63,7 +63,7 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
   if (crit.method == "asy"){
     result  <- mvnmixCrit(y=y, parlist=pmle.result$parlist, values=emstat)
   } else if (crit.method == "boot") {
-    result  <- mvnmixCritBoot(y=y, parlist= pmle.result$parlist, values=emstat,
+    result  <- mvnmixCritBoot(y=y, an=an, parlist= pmle.result$parlist, values=emstat,
                                  ninits=ninits, nbtsp=nbtsp, parallel = 0, cl=cl,
                                  LRT.penalized = LRT.penalized)
   } else {
@@ -97,7 +97,7 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
 #' @return A list with the following items:
 #' \item{crit}{3 by 3 matrix of (0.1, 0.05, 0.01 critical values), jth row corresponding to k=j}
 #' \item{pvals}{A vector of p-values at k = 1, 2, 3}
-mvnmixCritBoot <- function (y, parlist, values = NULL, ninits = 10,
+mvnmixCritBoot <- function (y, an = 1, parlist, values = NULL, ninits = 10,
                                nbtsp = 199, parallel = 0, cl = NULL,
                                LRT.penalized = FALSE) {
   # if (normalregMix.test.on) # initial values controlled by normalregMix.test.on
@@ -112,7 +112,7 @@ mvnmixCritBoot <- function (y, parlist, values = NULL, ninits = 10,
   mu    <- parlist$mu
   sigma <- parlist$sigma
   m     <- length(alpha)
-  an    <- 1
+  # an    <- 1
   # an    <- anFormula(parlist = parlist, m = m, n = n, LRT.penalized = LRT.penalized)
   
   mu.mat <- matrix(mu, nrow=d, ncol=m)
