@@ -144,7 +144,7 @@ mvnmixCritBoot <- function (y, an = 1, parlist, values = NULL, ninits = 10,
   # }
   # else
     out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,,j], m = m, 
-                  an = an, ninits = ninits, crit.method="none"))
+                  an = an, ninits = ninits, crit.method="none", LRT.penalized = LRT.penalized))
   
   emstat.b <- sapply(out, "[[", "emstat")  # 3 by nbstp matrix
   
