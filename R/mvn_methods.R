@@ -17,7 +17,7 @@ rmvnmix <- function(n, alpha, mu, sigma){
     nj <- sum(Ind==j)
     muj <- mu[,j]
     sigmaj <- sigma[,(d*(j-1)+1):(d*j)]
-    yj <- rmvnorm(nj, mu=muj, sigma = sigmaj)
+    yj <- rmvnorm(nj, mean = muj, sigma = sigmaj)
     y[Ind==j,] <- yj
   }
 y
