@@ -130,7 +130,8 @@ mvnmixCritBoot <- function (y, an = 1, parlist, values = NULL, ninits = 10,
   } else {
     ybset <- rmvnmix(nbtsp*n, alpha=alpha, mu=mu.mat, sigma=sigma.mat)
   }
-  ybset <- array(ybset, dim=c(n,d,nbtsp))
+  # ybset <- array(ybset, dim=c(n,d,nbtsp))
+  ybset <- array(ybset, dim=c(n,nbtsp,d))
   
   # num.cores <- max(1,floor(detectCores()*parallel))
   # if (num.cores > 1) {
@@ -143,7 +144,9 @@ mvnmixCritBoot <- function (y, an = 1, parlist, values = NULL, ninits = 10,
   #   on.exit(cl)
   # }
   # else
-    out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,,j], m = m, 
+  #  out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,,j], m = m, 
+  #                an = an, ninits = ninits, crit.method="none", LRT.penalized = LRT.penalized))
+    out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,j,], m = m, 
                   an = an, ninits = ninits, crit.method="none", LRT.penalized = LRT.penalized))
   
   emstat.b <- sapply(out, "[[", "emstat")  # 3 by nbstp matrix
