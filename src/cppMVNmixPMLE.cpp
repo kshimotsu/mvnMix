@@ -162,9 +162,9 @@ List cppMVNmixPMLE(NumericMatrix bs,
             dum++;
           }
         }
-      alpha.print();
-      mu.print();
-      sigmamat.print();
+      // alpha.print();
+      // mu.print();
+      // sigmamat.print();
         // sigmamat_j.print();
         // sigma.print();
       }
