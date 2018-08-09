@@ -92,8 +92,8 @@ List cppMVNmixPMLE(NumericMatrix bs,
     diff = 1.0;
     sing = 0;
 
- // sigmamat.print();
- // mu.print();
+sigmamat.print();
+ mu.print();
 
     /* EM loop begins */
     for (int iter = 0; iter < maxit; iter++) {
