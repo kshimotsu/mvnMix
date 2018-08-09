@@ -97,6 +97,8 @@ List cppMVNmixPMLE(NumericMatrix bs,
 
     /* EM loop begins */
     for (int iter = 0; iter < maxit; iter++) {
+      alpha.print();
+      mu.print();
       sigmamat.print();
       /* standardized squared residual */
       for (int j=0; j < m; j++) {
