@@ -102,7 +102,7 @@ List cppMVNmixPMLE(NumericMatrix bs,
         mu_j = mu.subvec(j*d,(j+1)*d-1);
         ydot = y.each_row() - mu_j.t();
         detsigma(j) = det(sigmamat.cols(j*d,(j+1)*d-1));
-        if (detsigma(j) < 1e-8) {
+        if ( detsigma(j) < 1e-8 || isnan(detsigma(j)) ) {
             sigma_j_inv = arma::eye(d,d);
         } else {
             sigma_j_inv = inv_sympd(sigmamat.cols(j*d,(j+1)*d-1));
@@ -112,7 +112,7 @@ List cppMVNmixPMLE(NumericMatrix bs,
         s0j = sigma0mat.cols(j*d,(j+1)*d-1) * sigma_j_inv;
         pen(j) = trace(s0j) - log(det(s0j)) -d;
       } 
-      if (any(detsigma < 1e-8)) {
+      if ( any(detsigma < 1e-8) || detsigma.has.nan() ) {
         penloglik = R_NegInf;
         break;
       }
