@@ -112,7 +112,7 @@ List cppMVNmixPMLE(NumericMatrix bs,
         s0j = sigma0mat.cols(j*d,(j+1)*d-1) * sigma_j_inv;
         pen(j) = trace(s0j) - log(det(s0j)) -d;
       } 
-      if ( any(detsigma < 1e-8) || detsigma.has.nan() ) {
+      if ( any(detsigma < 1e-8) || detsigma.has_nan() || sigmamat.has_nan() ) {
         penloglik = R_NegInf;
         break;
       }
