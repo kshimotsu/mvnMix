@@ -101,12 +101,20 @@ List cppMVNmixPMLE(NumericMatrix bs,
       for (int j=0; j < m; j++) {
         mu_j = mu.subvec(j*d,(j+1)*d-1);
         ydot = y.each_row() - mu_j.t();
-        sigma_j_inv = inv_sympd(sigmamat.cols(j*d,(j+1)*d-1));
+        detsigma(j) = det(sigmamat.cols(j*d,(j+1)*d-1));
+        if (detsigma(j) < 1e-8) {
+            sigma_j_inv = arma::eye(d,d);
+        } else {
+            sigma_j_inv = inv_sympd(sigmamat.cols(j*d,(j+1)*d-1));
+        } 
         rtilde = 0.5*(ydot * sigma_j_inv) % ydot;
         r.col(j) = sum(rtilde,1);
-        detsigma(j) = det(sigmamat.cols(j*d,(j+1)*d-1));
         s0j = sigma0mat.cols(j*d,(j+1)*d-1) * sigma_j_inv;
         pen(j) = trace(s0j) - log(det(s0j)) -d;
+      } 
+      if (any(detsigma < 1e-8)) {
+        penloglik = R_NegInf;
+        break;
       }
       alp_sig = alpha / sqrt(detsigma);
       minr = min(r,1);
