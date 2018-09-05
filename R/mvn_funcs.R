@@ -167,7 +167,7 @@ mvnmixPMLE <- function (y, m = 2, #vcov.method = c("Hessian", "OPG", "none"),
     sigma <- b1[(m+m*d+1):(m+m*d+m*dsig),index]
     penloglik <- out$penloglikset[index]
     loglik    <- out$loglikset[index]
-    # postprobs <- matrix(out$post[,index], nrow=n)
+    postprobs <- matrix(out$post[,index], nrow=n)
 
     aic     <- -2*loglik + 2*(m-1 + m*d + m*dsig)
     bic     <- -2*loglik + log(n)*(m-1 + m*d + m*dsig)
@@ -181,8 +181,8 @@ mvnmixPMLE <- function (y, m = 2, #vcov.method = c("Hessian", "OPG", "none"),
     mu <- c(mu.2)
     sigma <- c(sigma.2)
 
-    # postprobs <- postprobs[, mu.order]
-    # colnames(postprobs) <- c(paste("comp", ".", 1:m, sep = ""))
+    postprobs <- postprobs[, mu.order]
+    colnames(postprobs) <- c(paste("comp", ".", 1:m, sep = ""))
 
     parlist <- list(alpha = alpha, mu = mu, sigma = sigma)
     coefficients <- unlist(parlist)
@@ -196,7 +196,7 @@ mvnmixPMLE <- function (y, m = 2, #vcov.method = c("Hessian", "OPG", "none"),
   }
 
   a <- list(coefficients = coefficients, parlist = parlist, loglik = loglik,
-            penloglik = penloglik, aic = aic, bic = bic,
+            penloglik = penloglik, aic = aic, bic = bic, postprobs = postprobs,
             call = match.call(), m = m)
   # a <- list(coefficients = coefficients, parlist = parlist, vcov = vcov, loglik = loglik,
   #           penloglik = penloglik, aic = aic, bic = bic, postprobs = postprobs,
