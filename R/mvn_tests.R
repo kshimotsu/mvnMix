@@ -14,7 +14,7 @@
 #' @param nbtsp The number of bootstrap observations; by default, it is set to be 199
 #' @param cl Cluster used for parallelization; if it is \code{NULL}, the system will automatically
 #' create a new one for computation accordingly.
-#' @param parallel Determines what percentage of available cores are used, 
+#' @param parallel Determines what percentage of available cores are used,
 #' represented by a double in [0,1]. 0.75 is default.
 #' @param LRT.penalized Determines whether penalized likelihood is used in calculation of LRT
 #' statistic for likelihood in an alternative hypothesis.
@@ -48,10 +48,10 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
   n   <- nrow(y)
   d   <- ncol(y)
   crit.method <- match.arg(crit.method)
-  
+
   pmle.result    <- mvnmixPMLE(y=y, m=m, ninits=ninits)
   loglik0        <- pmle.result$loglik
-  
+
   par1  <- mvnmixMaxPhi(y=y, parlist=pmle.result$parlist,
                            an=an, tauset = tauset, ninits=ninits,
                            parallel = 0, cl = cl)
@@ -72,13 +72,14 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
   }
 
   a <- list(emstat = emstat, pvals = result$pvals, crit = result$crit, crit.method = crit.method,
-            parlist = pmle.result$parlist, ll0 = loglik0, ll1 = par1$loglik, 
+            parlist = pmle.result$parlist, ll0 = loglik0, ll1 = par1$loglik,
+            aic = pmle.result$aic, bic = pmle.result$bic, postprobs = pmle.result$postprobs,
             call = match.call(), m = m, label = "MEMtest")
-  
+
   class(a) <- "normalregMix"
-  
+
   a
-  
+
 }  # end mvnmixMEMtest
 
 #' @description Computes the bootstrap critical values of the modified EM test.
@@ -102,28 +103,28 @@ mvnmixCritBoot <- function (y, an = 1, parlist, values = NULL, ninits = 10,
                                LRT.penalized = FALSE) {
   # if (normalregMix.test.on) # initial values controlled by normalregMix.test.on
   #   set.seed(normalregMix.test.seed)
-  
+
   y   <- as.matrix(y)
   n   <- nrow(y)
   d   <- ncol(y)
   dsig <- d*(d+1)/2
-  
+
   alpha <- parlist$alpha
   mu    <- parlist$mu
   sigma <- parlist$sigma
   m     <- length(alpha)
   # an    <- 1
   # an    <- anFormula(parlist = parlist, m = m, n = n, LRT.penalized = LRT.penalized)
-  
+
   mu.mat <- matrix(mu, nrow=d, ncol=m)
   sigma.mat <- matrix(0, nrow=d, ncol=d*m)
   for (j in 1:m){
     sigma.j <- sigma[((j-1)*dsig+1):(j*dsig)]
     sigma.mat[,((j-1)*d+1):(j*d)] <- sigmavec2mat(sigma.j,d)
   }
-  
+
   pvals <- NULL
-  
+
   # Generate bootstrap observations
   if (m==1){
     ybset <- rmvnorm(nbtsp*n, mu=mu, sigma = sigma.mat)
@@ -132,7 +133,7 @@ mvnmixCritBoot <- function (y, an = 1, parlist, values = NULL, ninits = 10,
   }
   # ybset <- array(ybset, dim=c(n,d,nbtsp))
   ybset <- array(ybset, dim=c(n,nbtsp,d))
-  
+
   # num.cores <- max(1,floor(detectCores()*parallel))
   # if (num.cores > 1) {
   #   if (is.null(cl))
@@ -144,20 +145,20 @@ mvnmixCritBoot <- function (y, an = 1, parlist, values = NULL, ninits = 10,
   #   on.exit(cl)
   # }
   # else
-  #  out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,,j], m = m, 
+  #  out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,,j], m = m,
   #                an = an, ninits = ninits, crit.method="none", LRT.penalized = LRT.penalized))
-    out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,j,], m = m, 
+    out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,j,], m = m,
                   an = an, ninits = ninits, crit.method="none", LRT.penalized = LRT.penalized))
-  
+
   emstat.b <- sapply(out, "[[", "emstat")  # 3 by nbstp matrix
-  
+
   emstat.b <- t(apply(emstat.b, 1, sort))
-  
+
   q <- ceiling(nbtsp*c(0.90,0.95,0.99))
   crit <- emstat.b[, q]
-  
+
   if (!is.null(values)) { pvals <- rowMeans(emstat.b > values) }
-  
+
   return(list(crit = crit, pvals = pvals))
 }  # end function mvnmixCritBoot
 
