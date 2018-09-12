@@ -52,19 +52,37 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
   pmle.result    <- mvnmixPMLE(y=y, m=m, ninits=ninits)
   loglik0        <- pmle.result$loglik
 
-  par1  <- mvnmixMaxPhi(y=y, parlist=pmle.result$parlist,
+  # Scale y so that smallest value of the diagonal
+  # elements of sigma is 0.1.
+  sigma.matrix <- matrix(pmle.result$parlist$sigma, ncol=m)
+  IND <- cumsum(c(1,seq(d,2)))
+  sigma.diags <- sigma.matrix[IND,]
+  sc <- sqrt(0.1/min(sigma.diags))
+
+  # parlist0 contains parameter values passed to MaxPhi,
+  # mvnmixCrit and mvnmixCritBoot. mu and sigma are scaled.
+  y <- y*sc
+  parlist0 <- pmle.result$parlist
+  parlist0$mu <- parlist0$mu*sc
+  parlist0$sigma <- parlist0$sigma*sc*sc
+
+  par1  <- mvnmixMaxPhi(y=y, parlist=parlist0,
                            an=an, tauset = tauset, ninits=ninits,
                            parallel = 0, cl = cl)
 
-  emstat  <- 2*(par1$loglik - loglik0)
-  if (LRT.penalized) # use the penalized log-likelihood.
-    emstat  <- 2*(par1$penloglik - loglik0)
+  # emstat  <- 2*(par1$loglik - loglik0)
+  # Adjust the value of the loglikelihood for scaling.
+  emstat  <- 2*(par1$loglik - loglik0 + log(sc)*n*d)
+  if (LRT.penalized){
+    # emstat  <- 2*(par1$penloglik - loglik0)
+    emstat  <- 2*(par1$penloglik - loglik0 + log(sc)*n*d)
+  } # use the penalized log-likelihood.
 
   if (crit.method == "asy"){
-    result  <- mvnmixCrit(y=y, parlist=pmle.result$parlist, values=emstat)
+    result  <- mvnmixCrit(y=y, parlist=parlist0, values=emstat)
   } else if (crit.method == "boot") {
-    result  <- mvnmixCritBoot(y=y, an=an, parlist= pmle.result$parlist, values=emstat,
-                                 ninits=ninits, nbtsp=nbtsp, parallel = 0, cl=cl,
+    result  <- mvnmixCritBoot(y=y, an=an, parlist= parlist0, values=emstat,
+                                 ninits=ninits, nbtsp=nbtsp, parallel = parallel, cl=cl,
                                  LRT.penalized = LRT.penalized)
   } else {
     result <- list()
@@ -99,7 +117,7 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
 #' \item{crit}{3 by 3 matrix of (0.1, 0.05, 0.01 critical values), jth row corresponding to k=j}
 #' \item{pvals}{A vector of p-values at k = 1, 2, 3}
 mvnmixCritBoot <- function (y, an = 1, parlist, values = NULL, ninits = 10,
-                               nbtsp = 199, parallel = 0, cl = NULL,
+                               nbtsp = 199, parallel = parallel, cl = NULL,
                                LRT.penalized = FALSE) {
   # if (normalregMix.test.on) # initial values controlled by normalregMix.test.on
   #   set.seed(normalregMix.test.seed)
@@ -134,20 +152,23 @@ mvnmixCritBoot <- function (y, an = 1, parlist, values = NULL, ninits = 10,
   # ybset <- array(ybset, dim=c(n,d,nbtsp))
   ybset <- array(ybset, dim=c(n,nbtsp,d))
 
-  # num.cores <- max(1,floor(detectCores()*parallel))
-  # if (num.cores > 1) {
-  #   if (is.null(cl))
-  #     cl <- makeCluster(num.cores)
-  #   registerDoParallel(cl)
-  #   out <- foreach (i.btsp = 1:nbtsp) %dopar% {
-  #     mvnmixMEMtest (ybset[,,i.btsp], m = m,
-  #                       an = an, ninits = ninits, crit.method = "none", parallel=0) }
-  #   on.exit(cl)
-  # }
-  # else
-  #  out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,,j], m = m,
-  #                an = an, ninits = ninits, crit.method="none", LRT.penalized = LRT.penalized))
-    out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,j,], m = m,
+  num.cores <- max(1,floor(detectCores()*parallel))
+  if (num.cores > 1) {
+    if (is.null(cl)) {
+      cl <- makeCluster(num.cores)
+      newcluster <- TRUE
+    }
+      clusterSetRNGStream(cl = cl, 123456)
+      out <- parLapply (cl, 1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,j,], m = m, parallel = 0,
+          an = an, ninits = ninits, crit.method="none", LRT.penalized = LRT.penalized))
+    if (newcluster) {
+      on.exit(stopCluster(cl))
+    } else {
+    on.exit(cl)
+    }
+  }
+  else
+    out <- lapply(1:nbtsp, function(j) mvnmixMEMtest(y=ybset[,j,], m = m, parallel = 0,
                   an = an, ninits = ninits, crit.method="none", LRT.penalized = LRT.penalized))
 
   emstat.b <- sapply(out, "[[", "emstat")  # 3 by nbstp matrix
