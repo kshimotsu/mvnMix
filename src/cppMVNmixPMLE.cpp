@@ -46,6 +46,7 @@ List cppMVNmixPMLE(NumericMatrix bs,
   arma::mat rtilde(n,d);
   arma::vec mu_j(d);
   arma::vec wtilde(n);
+  arma::mat ytilde(d,n);
   int sing;
   double oldpenloglik, w_j, diff, alphah, tauhat;
   // double  ;
@@ -102,18 +103,22 @@ List cppMVNmixPMLE(NumericMatrix bs,
         mu_j = mu.subvec(j*d,(j+1)*d-1);
         ydot = y.each_row() - mu_j.t();
         detsigma(j) = det(sigmamat.cols(j*d,(j+1)*d-1));
-        if ( detsigma(j) < 1e-8 || isnan(detsigma(j)) ) {
-            sigma_j_inv = arma::eye(d,d);
-        } else {
-            sigma_j_inv = inv_sympd(sigmamat.cols(j*d,(j+1)*d-1));
-        } 
-        rtilde = 0.5*(ydot * sigma_j_inv) % ydot;
+        // if ( detsigma(j) < 1e-8 || isnan(detsigma(j)) ) {
+        //     sigma_j_inv = arma::eye(d,d);
+        // } else {
+        //     sigma_j_inv = inv_sympd(sigmamat.cols(j*d,(j+1)*d-1));
+        // }
+        // rtilde = 0.5*(ydot * sigma_j_inv) % ydot;
+        ytilde = solve(sigmamat.cols(j*d,(j+1)*d-1), ydot.t());
+        rtilde = 0.5* ytilde.t() % ydot;
         r.col(j) = sum(rtilde,1);
-        s0j = sigma0mat.cols(j*d,(j+1)*d-1) * sigma_j_inv;
+        // s0j = sigma0mat.cols(j*d,(j+1)*d-1) * sigma_j_inv;
+        s0j = solve(sigmamat.cols(j*d,(j+1)*d-1), sigma0mat.cols(j*d,(j+1)*d-1)).t();
         pen(j) = trace(s0j) - log(det(s0j)) -d;
-      } 
-      if ( any(detsigma < 1e-8) || detsigma.has_nan() || sigmamat.has_nan() ) {
-        penloglik = R_NegInf;
+      }
+      if ( detsigma.has_nan() || sigmamat.has_nan() ) {
+      // if ( any(detsigma < 1e-8) || detsigma.has_nan() || sigmamat.has_nan() ) {
+          penloglik = R_NegInf;
         break;
       }
       alp_sig = alpha / sqrt(detsigma);
@@ -190,8 +195,9 @@ List cppMVNmixPMLE(NumericMatrix bs,
       }
 
     /* Check singularity */
-      if (any(alpha < 1e-8) || alpha.has_nan() || any(detsigma < 1e-8)) {
-        sing = 1;
+      if (any(alpha < 1e-8) || alpha.has_nan() ) {
+      // if (any(alpha < 1e-8) || alpha.has_nan() || any(detsigma < 1e-8)) {
+          sing = 1;
       }
 
       /* Exit from the loop if singular */
