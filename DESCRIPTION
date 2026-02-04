@@ -1,7 +1,7 @@
 Package: mvnMix
 Type: Package
 Title: Modified EM Test and Estimation for Multivariate Normal Mixtures
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
     person("Hiroyuki", "Kasahara", role = c("aut", "cre"),
            email = "hkasahar@mail.ubc.ca"),

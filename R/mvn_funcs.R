@@ -125,7 +125,7 @@ mvnmixPMLE <- function (y, m = 2, #vcov.method = c("Hessian", "OPG", "none"),
     mu     <- colMeans(y)
     sigma  <- var0[lower.tri(var0, diag=TRUE)]
 
-    loglik   <- - (n/2) *(d + log(2*pi) + log(det(var0)))
+    loglik   <- - (n/2) *(d + d*log(2*pi) + log(det(var0)))
     aic      <- -2*loglik + 2*(m-1 + m*d + m*dsig)
     bic      <- -2*loglik + log(n)*(m-1 + m*d + m*dsig)
     penloglik <- loglik

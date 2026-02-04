@@ -75,7 +75,8 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
                               crit.method = c("asy", "boot", "none"), nbtsp = 199,
                               cl = NULL,
                               parallel = 0.75,
-                              LRT.penalized = FALSE) {
+                              LRT.penalized = FALSE,
+                              nrep = 10000, ninits.crit = 25) {
   # Compute the modified EM test statistic for testing H_0 of m components
   # against H_1 of m+1 components for a univariate finite mixture of normals
   y   <- as.matrix(y)
@@ -113,7 +114,8 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
   } # use the penalized log-likelihood.
 
   if (crit.method == "asy"){
-    result  <- mvnmixCrit(y=y, parlist=parlist0, values=emstat)
+    result  <- mvnmixCrit(y=y, parlist=parlist0, values=emstat,
+                              nrep=nrep, ninits.crit=ninits.crit)
   } else if (crit.method == "boot") {
     result  <- mvnmixCritBoot(y=y, an=an, parlist= parlist0, values=emstat,
                                  ninits=ninits, nbtsp=nbtsp, parallel = parallel, cl=cl,
