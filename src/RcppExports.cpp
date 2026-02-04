@@ -6,9 +6,14 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // cppMVNmixPMLE
 List cppMVNmixPMLE(NumericMatrix bs, NumericMatrix ys, NumericVector mu0s, NumericVector sigma0s, int m, double an, int maxit, int ninits, double tol, double tau, int h, int k);
-RcppExport SEXP mvnMix_cppMVNmixPMLE(SEXP bsSEXP, SEXP ysSEXP, SEXP mu0sSEXP, SEXP sigma0sSEXP, SEXP mSEXP, SEXP anSEXP, SEXP maxitSEXP, SEXP ninitsSEXP, SEXP tolSEXP, SEXP tauSEXP, SEXP hSEXP, SEXP kSEXP) {
+RcppExport SEXP _mvnMix_cppMVNmixPMLE(SEXP bsSEXP, SEXP ysSEXP, SEXP mu0sSEXP, SEXP sigma0sSEXP, SEXP mSEXP, SEXP anSEXP, SEXP maxitSEXP, SEXP ninitsSEXP, SEXP tolSEXP, SEXP tauSEXP, SEXP hSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,4 +32,14 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(cppMVNmixPMLE(bs, ys, mu0s, sigma0s, m, an, maxit, ninits, tol, tau, h, k));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_mvnMix_cppMVNmixPMLE", (DL_FUNC) &_mvnMix_cppMVNmixPMLE, 12},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_mvnMix(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

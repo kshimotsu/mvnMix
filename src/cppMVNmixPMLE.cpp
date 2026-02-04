@@ -1,4 +1,3 @@
-#define ARMA_NO_DEBUG
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
 using namespace Rcpp;
@@ -21,16 +20,16 @@ List cppMVNmixPMLE(NumericMatrix bs,
   int n = ys.nrow();
   int d = ys.ncol();
   int dsig = d*(d+1)/2;
-  arma::mat b(bs.begin(), bs.nrow(), bs.ncol(), false);
-  arma::mat y(ys.begin(), ys.nrow(), ys.ncol(), false);
+  arma::mat b = Rcpp::as<arma::mat>(bs);
+  arma::mat y = Rcpp::as<arma::mat>(ys);
   arma::mat sigmamat_j = arma::zeros(d, d);
   arma::mat sigma_j_inv = arma::zeros(d, d);
   arma::mat sigma0mat_j = arma::zeros(d, d);
   arma::mat s0j(d, d), ssr_j(d, d);
   arma::mat sigmamat = arma::zeros(d, m*d);
   arma::mat sigma0mat = arma::zeros(d, m*d);
-  arma::vec mu0(mu0s.begin(), mu0s.size(), false);
-  arma::vec sigma0(sigma0s.begin(), sigma0s.size(), false);
+  arma::vec mu0 = Rcpp::as<arma::vec>(mu0s);
+  arma::vec sigma0 = Rcpp::as<arma::vec>(sigma0s);
   arma::vec b_jn(bs.nrow());
   arma::vec lb(m),ub(m);
   arma::vec alpha(m), mu(m*d), sigma(m*dsig), alp_sig(m);
@@ -226,6 +225,6 @@ List cppMVNmixPMLE(NumericMatrix bs,
   return Rcpp::List::create(Named("penloglikset") = wrap(penloglikset),
                             Named("loglikset") = wrap(loglikset),
                             Named("notcg") = wrap(notcg),
-                            Named("post") = wrap(post)
-                            );
+                            Named("post") = wrap(post),
+                            Named("b") = wrap(b));
 }

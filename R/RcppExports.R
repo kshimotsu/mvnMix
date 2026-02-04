@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 cppMVNmixPMLE <- function(bs, ys, mu0s, sigma0s, m, an, maxit = 2000L, ninits = 10L, tol = 1e-8, tau = 0.5, h = 0L, k = 0L) {
-    .Call('mvnMix_cppMVNmixPMLE', PACKAGE = 'mvnMix', bs, ys, mu0s, sigma0s, m, an, maxit, ninits, tol, tau, h, k)
+    .Call(`_mvnMix_cppMVNmixPMLE`, bs, ys, mu0s, sigma0s, m, an, maxit, ninits, tol, tau, h, k)
 }
 

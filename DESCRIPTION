@@ -1,17 +1,22 @@
 Package: mvnMix
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Depends:
-    R (>= 2.14.0),
-    mixtools
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Modified EM Test and Estimation for Multivariate Normal Mixtures
+Version: 0.2.0
+Authors@R: c(
+    person("Hiroyuki", "Kasahara", role = c("aut", "cre"),
+           email = "hkasahar@mail.ubc.ca"),
+    person("Katsumi", "Shimotsu", role = "aut"),
+    person("Seojeong", "Ahn", role = "ctb"))
+Description: Estimation and testing for finite mixtures of multivariate
+    normal distributions. Implements the penalized maximum likelihood
+    estimator (PMLE) and the modified EM test of Kasahara and Shimotsu
+    for testing the number of components.
+License: GPL (>= 2)
 Encoding: UTF-8
-LazyData: true
-Imports: Rcpp (>= 0.11.1), RcppArmadillo (>= 0.4.200.0)
+Depends: R (>= 4.0.0), mixtools
+Imports:
+    Rcpp (>= 1.0.0),
+    RcppArmadillo (>= 0.12.0.0.0),
+    parallel
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 6.0.1

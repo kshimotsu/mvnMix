@@ -1,3 +1,37 @@
+mvnmixLRT <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
+                           ninits = 10,
+                           crit.method = c("asy", "boot", "none"), nbtsp = 199,
+                           cl = NULL,
+                           parallel = 0.75,
+                           LRT.penalized = FALSE) {
+  # Compute the LRT statistic for testing H_0 of m components
+  # against H_1 of m+1 components for a univariate finite mixture of normals
+  y   <- as.matrix(y)
+  n   <- nrow(y)
+  d   <- ncol(y)
+  crit.method <- match.arg(crit.method)
+
+  pmle.result    <- mvnmixPMLE(y=y, m=m, ninits=ninits)
+  loglik0        <- pmle.result$loglik
+
+  pmle1.result    <- mvnmixPMLE(y=y, m=m+1, ninits=ninits)
+  loglik1        <- pmle1.result$loglik
+
+  LRT  <- 2*(loglik1 - loglik0)
+  if (LRT.penalized){
+    # emstat  <- 2*(par1$penloglik - loglik0)
+    LRT  <- 2*(loglik1 - loglik0)
+  } # use the penalized log-likelihood.
+
+  a <- list(LRT = LRT, ll0 = loglik0, ll1 = loglik1,
+            call = match.call(), m = m, label = "MEMtest")
+
+  class(a) <- "normalregMix"
+
+  a
+
+}  # end mvnmixLRT
+
 #' Performs MEM test given the data for y on the null hypothesis H_0: m = m_0.
 #' @export
 #' @title mvnmixMEMtest

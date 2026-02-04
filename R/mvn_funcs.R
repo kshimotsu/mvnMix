@@ -158,13 +158,13 @@ mvnmixPMLE <- function (y, m = 2, #vcov.method = c("Hessian", "OPG", "none"),
 
     # long EM
     components <- order(out.short$penloglikset, decreasing = TRUE)[1:ninits]
-    b1 <- b0[ ,components, drop=FALSE] # b0 has been updated
+    b1 <- out.short$b[ ,components, drop=FALSE]
     out <- cppMVNmixPMLE(b1, y, mu0, sigma0, m, an, maxit, ninits, epsilon)
 
     index     <- which.max(out$penloglikset)
-    alpha <- b1[1:m,index] # b0 has been updated
-    mu <- b1[(m+1):(m+m*d),index]
-    sigma <- b1[(m+m*d+1):(m+m*d+m*dsig),index]
+    alpha <- out$b[1:m,index]
+    mu <- out$b[(m+1):(m+m*d),index]
+    sigma <- out$b[(m+m*d+1):(m+m*d+m*dsig),index]
     penloglik <- out$penloglikset[index]
     loglik    <- out$loglikset[index]
     postprobs <- matrix(out$post[,index], nrow=n)
@@ -351,13 +351,13 @@ mvnmixMaxPhiStep <- function (htaupair, y, parlist, an,
     cat(sprintf("non-convergence rate at short-EM = %.3f\n",mean(out.short$notcg)))
   }
   # long EM
-  b1 <- as.matrix(b0[ ,components, drop=FALSE])
+  b1 <- as.matrix(out.short$b[ ,components, drop=FALSE])
   out <- cppMVNmixPMLE(b1, y, mu0h, sigma0h, m1, an, maxit, ninits, epsilon, tau, h, k)
 
   index     <- which.max(out$penloglikset)
-  alpha <- b1[1:m1,index]
-  mu <- b1[(m1+1):(m1+d*m1),index]
-  sigma <- b1[(m1+d*m1+1):(m1+d*m1+dsig*m1),index]
+  alpha <- out$b[1:m1,index]
+  mu <- out$b[(m1+1):(m1+d*m1),index]
+  sigma <- out$b[(m1+d*m1+1):(m1+d*m1+dsig*m1),index]
 
   mu.matrix <- matrix(mu, nrow=d, ncol=m1) # d by m1 matrix
   sigma.matrix <- matrix(sigma, nrow=dsig, ncol=m1) # dsig by m1 matrix
@@ -384,7 +384,8 @@ mvnmixMaxPhiStep <- function (htaupair, y, parlist, an,
     maxit <- 2
     # Two EM steps
     out <- cppMVNmixPMLE(b, y, mu0h, sigma0h, m1, an, maxit, ninits, epsilon, tau, h, k)
-    alpha <- b[1:m1,1] # b has been updated
+    b <- out$b
+    alpha <- b[1:m1,1]
     mu <- b[(m1+1):(m1+d*m1),1]
     sigma <- b[(m1+d*m1+1):(m1+d*m1+dsig*m1),1]
     loglik[k]    <- out$loglikset[[1]]
