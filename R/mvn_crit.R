@@ -123,30 +123,31 @@ mvnmixCrit_simulate <- function(y, parlist, values, nrep, ninits.crit = 25) {
   # For each component, compute LR
   EM <- matrix(0, nrow = nrep, ncol = m)
 
-  for (jj in 1:m) {
-    idx <- ((jj - 1) * n_lam + 1):(jj * n_lam)
-    I_jj <- I_lam_eta[idx, idx]
-    I_jj_inv <- solve(I_jj)
-    u_jj <- u[, idx]
-
-    if (d == 1) {
-      # d=1: chi-sq(2) per component
+  if (d == 1) {
+    # d=1: chi-sq(2) per component (no cone projection needed)
+    for (jj in 1:m) {
+      idx <- ((jj - 1) * n_lam + 1):(jj * n_lam)
+      I_jj <- I_lam_eta[idx, idx]
+      I_jj_inv <- solve(I_jj)
+      u_jj <- u[, idx]
       EM[, jj] <- rowSums((u_jj %*% I_jj_inv) * u_jj)
-    } else {
-      # d >= 2: cone projection needed
-      Z_jj <- u_jj %*% I_jj_inv   # nrep x n_lam
-      R_chol <- chol(I_jj)
-
-      # Precompute initial value grid (deterministic, done once)
-      init_grid <- make_init_grid(d, dsig, ninits.crit)
-
-      for (rr in 1:nrep) {
-        Z_r <- Z_jj[rr, ]
-        EM[rr, jj] <- cone_project_maxLR(Z_r, R_chol, d, dsig, d_muv, d_mu4,
-                                          perm12_list, perm22_list, mc4_vec,
-                                          tup4, init_grid)
-      }
     }
+  } else {
+    # d >= 2: cone projection via C++
+    # Flatten permutation tables for C++ (0-indexed)
+    perm12_flat <- do.call(rbind, perm12_list) - 1L
+    perm12_offsets <- c(0L, cumsum(vapply(perm12_list, nrow, integer(1))))
+
+    perm22_flat <- do.call(rbind, perm22_list) - 1L
+    perm22_offsets <- c(0L, cumsum(vapply(perm22_list, nrow, integer(1))))
+
+    init_grid <- make_init_grid(d, dsig, ninits.crit)
+
+    EM <- cppConeProjectBatch(u, I_lam_eta, m, d,
+                              perm12_flat, perm12_offsets,
+                              perm22_flat, perm22_offsets,
+                              mc4_vec, tup4 - 1L, init_grid,
+                              d_muv, d_mu4)
   }
 
   max_EM <- apply(EM, 1, max)
@@ -227,51 +228,6 @@ perm4_count <- function(i, j, k, l) {
 }
 
 
-# ============================================================
-# Fast cone mapping using precomputed permutation tables
-# ============================================================
-
-cone1_map_fast <- function(lam_mu, lam_v_mat, d_muv, d_mu4, perm12_list, perm22_list) {
-  t_muv <- numeric(d_muv)
-  for (s in 1:d_muv) {
-    perms <- perm12_list[[s]]
-    val <- 0
-    for (r in 1:nrow(perms))
-      val <- val + lam_mu[perms[r, 1]] * lam_v_mat[perms[r, 2], perms[r, 3]]
-    t_muv[s] <- val
-  }
-
-  t_mu4 <- numeric(d_mu4)
-  for (s in 1:d_mu4) {
-    perms <- perm22_list[[s]]
-    val <- 0
-    for (r in 1:nrow(perms))
-      val <- val + lam_v_mat[perms[r, 1], perms[r, 2]] * lam_v_mat[perms[r, 3], perms[r, 4]]
-    t_mu4[s] <- val
-  }
-
-  c(t_muv, t_mu4)
-}
-
-cone2_map_fast <- function(lam_mu, lam_v_mat, d_muv, d_mu4, perm12_list, mc4_vec, tup4) {
-  t_muv <- numeric(d_muv)
-  for (s in 1:d_muv) {
-    perms <- perm12_list[[s]]
-    val <- 0
-    for (r in 1:nrow(perms))
-      val <- val + lam_mu[perms[r, 1]] * lam_v_mat[perms[r, 2], perms[r, 3]]
-    t_muv[s] <- val
-  }
-
-  t_mu4 <- numeric(d_mu4)
-  for (s in 1:d_mu4) {
-    t_mu4[s] <- -mc4_vec[s] * lam_mu[tup4[s, 1]] * lam_mu[tup4[s, 2]] *
-                               lam_mu[tup4[s, 3]] * lam_mu[tup4[s, 4]]
-  }
-
-  c(t_muv, t_mu4)
-}
-
 
 # ============================================================
 # Initial value grid for cone projection
@@ -288,64 +244,6 @@ make_init_grid <- function(d, dsig, ninits) {
   grid
 }
 
-
-# ============================================================
-# Cone projection: max of LR over both cones
-# ============================================================
-
-cone_project_maxLR <- function(Z, R_chol, d, dsig, d_muv, d_mu4,
-                                perm12_list, perm22_list, mc4_vec,
-                                tup4, init_grid) {
-  n_par <- d + dsig
-
-  # Quadratic form matrices
-  W <- crossprod(R_chol)  # = I_jj (the information submatrix)
-
-  # Unconstrained LR = Z' W Z
-  LR_full <- sum(Z * (W %*% Z))
-
-  # --- Cone 1 objective ---
-  obj1 <- function(par) {
-    lam_mu <- par[1:d]
-    lam_v_mat <- sigmavec2mat(par[(d + 1):n_par], d)
-    t_vec <- cone1_map_fast(lam_mu, lam_v_mat, d_muv, d_mu4, perm12_list, perm22_list)
-    diff <- t_vec - Z
-    sum(diff * (W %*% diff))
-  }
-
-  # --- Cone 2 objective ---
-  obj2 <- function(par) {
-    lam_mu <- par[1:d]
-    lam_v_mat <- sigmavec2mat(par[(d + 1):n_par], d)
-    t_vec <- cone2_map_fast(lam_mu, lam_v_mat, d_muv, d_mu4, perm12_list, mc4_vec, tup4)
-    diff <- t_vec - Z
-    sum(diff * (W %*% diff))
-  }
-
-  best1 <- obj1(rep(0, n_par))
-  best2 <- obj2(rep(0, n_par))
-
-  ninits <- nrow(init_grid)
-  for (i in 1:ninits) {
-    par0 <- init_grid[i, ]
-
-    res1 <- tryCatch(
-      nlminb(par0, obj1, control = list(iter.max = 100, rel.tol = 1e-8)),
-      error = function(e) list(objective = Inf)
-    )
-    if (res1$objective < best1) best1 <- res1$objective
-
-    res2 <- tryCatch(
-      nlminb(par0, obj2, control = list(iter.max = 100, rel.tol = 1e-8)),
-      error = function(e) list(objective = Inf)
-    )
-    if (res2$objective < best2) best2 <- res2$objective
-  }
-
-  LR1 <- max(LR_full - best1, 0)
-  LR2 <- max(LR_full - best2, 0)
-  max(LR1, LR2)
-}
 
 
 # ============================================================
