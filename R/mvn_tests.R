@@ -65,11 +65,16 @@ mvnmixLRT <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
 #' each observation belongs to based on computed posterior probabilities}
 #' \item{call}{The matched call.}
 #' \item{m}{The number of components in the mixture.}
+#' @param nrep Number of simulation replications for asymptotic critical values (default 10000)
+#' @param ninits.crit Number of random starts for cone projection (default 25)
 #' @examples
-#' data(faithful)
-#' attach(faithful)
-#' mvnmixMEMtest(y = eruptions, m = 1, crit.method = "asy")
-#' mvnmixMEMtest(y = eruptions, m = 2, crit.method = "asy")
+#' \donttest{
+#' set.seed(123)
+#' y <- rmvnmix(200, alpha = c(0.5, 0.5),
+#'   mu = matrix(c(-1, 1, 2, -1), nrow = 2),
+#'   sigma = cbind(diag(2), diag(2)))
+#' mvnmixMEMtest(y = y, m = 1, crit.method = "asy", nrep = 500, ninits.crit = 5)
+#' }
 mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
                               ninits = 10,
                               crit.method = c("asy", "boot", "none"), nbtsp = 199,
@@ -141,6 +146,7 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
 #' @title mvnmixCritBoot
 #' @name mvnmixCritBoot
 #' @param y n by d matrix of data
+#' @param an a term used for penalty function
 #' @param parlist The parameter estimates as a list containing alpha, mu, and sigma
 #' in the form of (alpha = (alpha_1,...,alpha_m), mu = (mu_1',...,mu_m'),
 #' sigma = (vech(sigma_1)',...,vech(sigma_m)')
@@ -149,6 +155,7 @@ mvnmixMEMtest <- function (y, m = 2, an = 1, tauset = c(0.1,0.3,0.5),
 #' @param nbtsp The number of bootstrap observations; by default, it is set to be 199.
 #' @param parallel Determines what percentage of available cores are used, represented by a double in [0,1]. 0.75 is default.
 #' @param cl Cluster used for parallelization (optional)
+#' @param LRT.penalized Determines whether penalized likelihood is used
 #' @return A list with the following items:
 #' \item{crit}{3 by 3 matrix of (0.1, 0.05, 0.01 critical values), jth row corresponding to k=j}
 #' \item{pvals}{A vector of p-values at k = 1, 2, 3}

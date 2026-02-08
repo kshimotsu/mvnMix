@@ -4,8 +4,19 @@
 \alias{mvnmixMaxPhiStep}
 \title{mvnmixMaxPhiStep}
 \usage{
-mvnmixMaxPhiStep(htaupair, y, parlist, an, ninits, ninits.short, epsilon.short,
-  epsilon, maxit.short, maxit, verb)
+mvnmixMaxPhiStep(
+  htaupair,
+  y,
+  parlist,
+  an,
+  ninits,
+  ninits.short,
+  epsilon.short,
+  epsilon,
+  maxit.short,
+  maxit,
+  verb
+)
 }
 \arguments{
 \item{htaupair}{A set of h and tau}

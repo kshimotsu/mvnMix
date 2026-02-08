@@ -1,5 +1,3 @@
-#' @useDynLib mvnMix
-#' @importFrom Rcpp sourceCpp
 #' @description Generate initial values used by the PMLE of multivariate normal mixture
 #' @export
 #' @title mvnmixPMLEinit
@@ -116,9 +114,6 @@ mvnmixPMLE <- function (y, m = 2, #vcov.method = c("Hessian", "OPG", "none"),
   dsig <- d*(d+1)/2
   n <- nrow(y)
   ninits.short <- ninits*10*m*d
-  # vcov.method <- match.arg(vcov.method)
-  vcov.method <- "none"
-
   var0   <- var(y) * (n-1)/n
 
   if (m == 1) {
@@ -189,21 +184,9 @@ mvnmixPMLE <- function (y, m = 2, #vcov.method = c("Hessian", "OPG", "none"),
 
   } # end m >= 2
 
-  if (vcov.method == "none") {
-    vcov <- NULL
-  } else {
-    vcov <- normalmixVcov(y = y, coefficients = coefficients, vcov.method = vcov.method)
-  }
-
   a <- list(coefficients = coefficients, parlist = parlist, loglik = loglik,
             penloglik = penloglik, aic = aic, bic = bic, postprobs = postprobs,
             call = match.call(), m = m)
-  # a <- list(coefficients = coefficients, parlist = parlist, vcov = vcov, loglik = loglik,
-  #           penloglik = penloglik, aic = aic, bic = bic, postprobs = postprobs,
-  #           components = getComponentcomponents(postprobs),
-  #           call = match.call(), m = m, label = "PMLE")
-
-  # class(a) <- "normalregMix"
 
   a
 }  # end function mvnmixPMLE

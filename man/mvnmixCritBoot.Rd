@@ -4,11 +4,22 @@
 \alias{mvnmixCritBoot}
 \title{mvnmixCritBoot}
 \usage{
-mvnmixCritBoot(y, parlist, values = NULL, ninits = 10, nbtsp = 199,
-  parallel = 0, cl = NULL, LRT.penalized = FALSE)
+mvnmixCritBoot(
+  y,
+  an = 1,
+  parlist,
+  values = NULL,
+  ninits = 10,
+  nbtsp = 199,
+  parallel = parallel,
+  cl = NULL,
+  LRT.penalized = FALSE
+)
 }
 \arguments{
 \item{y}{n by d matrix of data}
+
+\item{an}{a term used for penalty function}
 
 \item{parlist}{The parameter estimates as a list containing alpha, mu, and sigma
 in the form of (alpha = (alpha_1,...,alpha_m), mu = (mu_1',...,mu_m'),
@@ -23,6 +34,8 @@ sigma = (vech(sigma_1)',...,vech(sigma_m)')}
 \item{parallel}{Determines what percentage of available cores are used, represented by a double in [0,1]. 0.75 is default.}
 
 \item{cl}{Cluster used for parallelization (optional)}
+
+\item{LRT.penalized}{Determines whether penalized likelihood is used}
 }
 \value{
 A list with the following items:

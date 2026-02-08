@@ -4,8 +4,16 @@
 \alias{mvnmixPMLE}
 \title{mvnmixPMLE}
 \usage{
-mvnmixPMLE(y, m = 2, ninits = 100, epsilon = 1e-08, maxit = 2000,
-  epsilon.short = 0.01, maxit.short = 500, binit = NULL)
+mvnmixPMLE(
+  y,
+  m = 2,
+  ninits = 100,
+  epsilon = 1e-08,
+  maxit = 2000,
+  epsilon.short = 0.01,
+  maxit.short = 500,
+  binit = NULL
+)
 }
 \arguments{
 \item{y}{n by d matrix of data}

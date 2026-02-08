@@ -7,17 +7,13 @@
 sigmavec2mat(sigma.vec, d)
 }
 \arguments{
-\item{n}{The number of observations}
+\item{sigma.vec}{A vector of length d(d+1)/2 containing the lower triangle of a symmetric matrix}
 
-\item{alpha}{m by 1 vector that represents proportions of components}
-
-\item{mu}{d by m matrix that represents mu}
-
-\item{sigma}{d by d*m matrix that represents variance of components}
+\item{d}{The dimension of the matrix}
 }
 \value{
-n by d vector
+d by d symmetric matrix
 }
 \description{
-Convert sigma vector to matrix
+Convert a vech (lower triangular, column-major) vector to a symmetric matrix
 }

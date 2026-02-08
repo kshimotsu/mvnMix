@@ -7,6 +7,8 @@ Authors@R: c(
            email = "hkasahar@mail.ubc.ca"),
     person("Katsumi", "Shimotsu", role = "aut"),
     person("Seojeong", "Ahn", role = "ctb"))
+Author: Hiroyuki Kasahara [aut, cre], Katsumi Shimotsu [aut], Seojeong Ahn [ctb]
+Maintainer: Hiroyuki Kasahara <hkasahar@mail.ubc.ca>
 Description: Estimation and testing for finite mixtures of multivariate
     normal distributions. Implements the penalized maximum likelihood
     estimator (PMLE) and the modified EM test of Kasahara and Shimotsu
@@ -16,7 +18,6 @@ Encoding: UTF-8
 Depends: R (>= 4.0.0), mixtools
 Imports:
     Rcpp (>= 1.0.0),
-    RcppArmadillo (>= 0.12.0.0.0),
     parallel
 LinkingTo: Rcpp, RcppArmadillo
-RoxygenNote: 6.0.1
+RoxygenNote: 7.3.2

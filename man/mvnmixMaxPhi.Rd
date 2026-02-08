@@ -4,9 +4,20 @@
 \alias{mvnmixMaxPhi}
 \title{mvnmixMaxPhi}
 \usage{
-mvnmixMaxPhi(y, parlist, an, tauset = c(0.1, 0.3, 0.5), ninits = 10,
-  epsilon.short = 0.01, epsilon = 1e-08, maxit.short = 500,
-  maxit = 2000, verb = FALSE, parallel = 0.75, cl = NULL)
+mvnmixMaxPhi(
+  y,
+  parlist,
+  an,
+  tauset = c(0.1, 0.3, 0.5),
+  ninits = 10,
+  epsilon.short = 0.01,
+  epsilon = 1e-08,
+  maxit.short = 500,
+  maxit = 2000,
+  verb = FALSE,
+  parallel = 0.75,
+  cl = NULL
+)
 }
 \arguments{
 \item{y}{n by d matrix of data}

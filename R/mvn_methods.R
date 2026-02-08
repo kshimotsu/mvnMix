@@ -24,15 +24,13 @@ y
 
 }
 
-#' @description Convert sigma vector to matrix
+#' @description Convert a vech (lower triangular, column-major) vector to a symmetric matrix
 #' @export
 #' @title sigmavec2mat
 #' @name sigmavec2mat
-#' @param n The number of observations
-#' @param alpha m by 1 vector that represents proportions of components
-#' @param mu d by m matrix that represents mu
-#' @param sigma d by d*m matrix that represents variance of components
-#' @return n by d vector
+#' @param sigma.vec A vector of length d(d+1)/2 containing the lower triangle of a symmetric matrix
+#' @param d The dimension of the matrix
+#' @return d by d symmetric matrix
 sigmavec2mat <- function(sigma.vec, d){
 # sigma.vec is a vector of length d(d+1)/2
   sigma <- diag(d)

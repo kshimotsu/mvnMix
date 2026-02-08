@@ -1,2 +1,18 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.RData$
+^\.Rhistory$
+^\.git$
+^experiments$
+^experiments_old$
+^vignettes$
+^\.github$
+^tasks$
+^FORHIRO\.md$
+^CHECKPOINT\.md$
+^.*conflicted copy.*$
+^src/.*\.o$
+^src/.*\.so$
+^src/.*\.dll$
+^src/.*\.rds$
+^src/.*\.stan$
